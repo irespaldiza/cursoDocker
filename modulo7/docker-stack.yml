@@ -1,0 +1,10 @@
+version: "3.9"
+services:
+  users-api:
+    image: irespaldiza/users-api:0.1
+    ports: ["8081:8081"]
+    deploy: { replicas: 2, restart_policy: { condition: on-failure } }
+  orders-api:
+    image: irespaldiza/orders-api:0.1
+    ports: ["8082:8082"]
+    deploy: { replicas: 2, restart_policy: { condition: on-failure } }
