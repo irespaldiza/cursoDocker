@@ -1,0 +1,52 @@
+# ARG: parámetros de build
+ARG NGINX_VERSION=1.27-alpine
+
+# FROM con ARG
+FROM nginx:${NGINX_VERSION}
+
+# LABEL: metadatos de imagen
+LABEL org.opencontainers.image.title="curso-nginx" \
+  org.opencontainers.image.description="Imagen NGINX para demo de Dockerfile" \
+  org.opencontainers.image.licenses="MIT"
+
+# SHELL: ejemplo de cambio de shell (en Debian/Ubuntu tendría sentido). En Alpine se queda /bin/sh por defecto.
+# SHELL ["/bin/sh", "-c"]
+
+# ENV: variables disponibles en tiempo de build y de ejecución
+ENV APP_ENV=production \
+  TZ=UTC
+
+# WORKDIR: directorio de trabajo
+WORKDIR /usr/share/nginx/html
+
+# RUN: comandos en tiempo de build
+# Limpia el index por defecto y crea una carpeta de assets
+RUN rm -f /usr/share/nginx/html/index.html && \
+  mkdir -p /usr/share/nginx/html/assets
+
+# COPY: copiar ficheros del contexto
+COPY index.html /usr/share/nginx/html/index.html
+
+# ADD: similar a COPY, con extracción de tar y soporte de URL. Lo usamos solo con un tar local como ejemplo.
+# (No se recomienda ADD con URL en producción)
+# ADD assets.tar.gz /usr/share/nginx/html/assets/
+
+# EXPOSE: puerto documentado
+EXPOSE 80
+
+# VOLUME: declarar punto de montaje
+VOLUME ["/var/log/nginx"]
+
+# USER: correr como usuario no root si es posible
+# En la imagen oficial de nginx, existe el usuario 'nginx'. Si no, mantener root para la demo.
+# USER nginx
+
+# HEALTHCHECK: chequeo de vida del contenedor
+HEALTHCHECK --interval=30s --timeout=3s --retries=3 CMD wget -qO- http://localhost/ || exit 1
+
+# STOPSIGNAL: señal de parada
+STOPSIGNAL SIGQUIT
+
+# ENTRYPOINT + CMD: proceso principal y argumentos por defecto
+ENTRYPOINT ["nginx"]
+CMD ["-g", "daemon off;"]
