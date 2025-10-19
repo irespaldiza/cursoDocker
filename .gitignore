@@ -23,3 +23,4 @@ TestResults.xml
 .envrc
 solucion*
 .config.conf
+gke_gcloud_auth_plugin_cache
