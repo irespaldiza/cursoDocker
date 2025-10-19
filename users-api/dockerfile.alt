@@ -1,0 +1,27 @@
+FROM python:3.12-slim
+
+WORKDIR /app
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY app.py app.py
+COPY app_alt.py app_alt.py
+
+# Usuario no root para buenas prácticas
+RUN useradd -u 10001 -m appuser
+USER appuser
+
+EXPOSE 8081
+
+# Metadatos como ejemplo
+LABEL org.opencontainers.image.title="users-api" \
+      org.opencontainers.image.description="Flask Users API for the course" \
+      org.opencontainers.image.licenses="MIT"
+
+ENTRYPOINT ["python"]
+# Aquí usamos app_alt.py para demostrar que cambiar CMD cambia el programa
+CMD ["app_alt.py"]

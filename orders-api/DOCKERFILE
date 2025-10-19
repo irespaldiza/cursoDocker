@@ -1,0 +1,18 @@
+# syntax=docker/dockerfile:1
+
+# Etapa de compilación
+FROM golang:1.22-alpine AS build
+WORKDIR /src
+COPY go.mod ./
+COPY . .
+# Compilación estática para poder usar FROM scratch
+RUN CGO_ENABLED=0 GOOS=linux go build -ldflags "-s -w" -o /out/orders-api ./main.go
+
+# Imagen final ultra mínima
+FROM scratch
+# Puerto informativo
+EXPOSE 8082
+# Copiamos el binario estático
+COPY --from=build /out/orders-api /orders-api
+# Proceso principal
+ENTRYPOINT ["/orders-api"]
